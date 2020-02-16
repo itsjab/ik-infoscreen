@@ -316,12 +316,20 @@ const importFavorites = function() {
   }
 }
 
+const hideTools = function() {
+  if (window.location.href.includes('hidetools')) {
+    document.getElementById('tools').style.display = 'none';
+    document.body.style.fontSize = '120%';
+  }
+}
+
 
 /** *** Entry point *** **/
 
 const loader = function() {
   addFavoriteEventListeners();
   updateFavorites();
+  hideTools();
 
   // Refresh data
   startTime();
