@@ -2,6 +2,12 @@
 
 var start_date = new Date(2020, 2, 13);
 var end_date = new Date(2020, 2, 20);
+var courses;
+var now = new Date();
+  if(now < start_date || now > end_date) {
+    now = new Date(start_date.getTime());
+}
+
 /** *** Refreshes *** **/
 
 function updateSchoutbox() {
@@ -15,6 +21,18 @@ function updateSchoutbox() {
   });
 }
 
+function updateSchedule() {
+  fetch('https://interdisciplinary-college.org/schedule/courses_metadata.php').then(function(response) {
+    return response.json();
+  }).then(function(json) {
+    courses = json.courses;
+    initializeDayView();
+    setTimeout(updateSchedule, 120 * 1000);
+  }).catch(function(err) {
+    setTimeout(updateSchedule, 120 * 1000);
+  });
+}
+
 function updateImpression() {
   fetch('/impressions.php').then(function(response) {
     return response.text();
@@ -25,38 +43,6 @@ function updateImpression() {
     setTimeout(updateImpression, 20 * 1000);
   });
 }
-
-const contentFromHTMLById = function(html, id) {
-  var dom = document.createElement('html');
-  dom.innerHTML = html;
-  return dom.querySelector('#' + id).innerHTML;
-}
-
-// id: #ID value without #
-const refreshById = function(id) {
-  return function () {
-    var XHR = new XMLHttpRequest();
-
-    XHR.addEventListener("load", function(event) {
-      var content = contentFromHTMLById(XHR.responseText, id);
-      document.getElementById(id).innerHTML = content;
-    });
-
-    XHR.addEventListener("error", function(event) {
-      console.log(event);
-    });
-
-    XHR.open("GET", document.URL);
-    XHR.send(null);
-  };
-}
-
-// id: #ID value without #
-// interval: time in seconds to reload
-const refreshBySchedule = function(id, interval) {
-  setInterval(refreshById(id), interval * 1000)
-}
-
 
 /** *** Shoutbox *** **/
 
@@ -340,7 +326,7 @@ const loader = function() {
 
   // Refresh data
   startTime();
-  refreshBySchedule('schedule', 60);
+  updateSchedule();
   updateSchoutbox();
   if (window.matchMedia('screen and (min-width: 1024px)')) {
     updateImpression();
